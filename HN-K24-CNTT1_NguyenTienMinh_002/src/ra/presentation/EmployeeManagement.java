@@ -64,7 +64,8 @@ public class EmployeeManagement {
                         displayTable(business.getAll());
                         break;
                     case 8:
-                        break;
+                        System.out.println("Exiting program...");
+                        return;
                     default:
                         System.out.println("Invalid choice");
                 }
@@ -74,13 +75,18 @@ public class EmployeeManagement {
         }
     }
 
-    private static void displayTable(List<Employee> all) {
-        if (all.isEmpty()) {
-            System.out.println("No employees found");
+    private static void displayTable(List<Employee> list) {
+        if (list.isEmpty()) {
+            System.out.println("No data!");
             return;
         }
-        try (Scanner sc = new Scanner(System.in)) {
 
-        }
+        System.out.println("+------------+----------------------+-------+-----------------+");
+        System.out.printf("| %-10s | %-20s | %-5s | %-15s |\n", "ID", "Name", "Age", "Salary");
+        System.out.println("+------------+----------------------+-------+-----------------+");
+
+        list.forEach(Employee::displayData);
+
+        System.out.println("+------------+----------------------+-------+-----------------+");
     }
 }
