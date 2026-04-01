@@ -7,7 +7,8 @@ public interface OrderService {
 
     void createOrder(int userId, int productId, int quantity);
 
-    List<Order> getAll();   // ✅ sửa lại dòng này
+    List<Order> getAll();
 
     void updateStatus(int id, String status);
+    List<Order> getByUser(int userId);
 }

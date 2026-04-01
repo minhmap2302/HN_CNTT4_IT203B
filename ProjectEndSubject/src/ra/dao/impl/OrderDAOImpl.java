@@ -11,10 +11,8 @@ import java.util.List;
 public class OrderDAOImpl implements OrderDAO {
 
     @Override
-    public int createOrder(Order order) {
+    public int createOrder(Connection conn, Order order) {
         String sql = "INSERT INTO orders(user_id, total_price, status) VALUES (?, ?, ?)";
-
-        Connection conn = ConnectionDB.getInstance();
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -31,9 +29,8 @@ public class OrderDAOImpl implements OrderDAO {
             }
 
         } catch (Exception e) {
-            System.out.println("Lỗi hệ thống!");
+            e.printStackTrace();
         }
-
         return -1;
     }
 
@@ -93,5 +90,32 @@ public class OrderDAOImpl implements OrderDAO {
                 if (ps != null) ps.close();
             } catch (Exception ignored) {}
         }
+    }
+
+    @Override
+    public List<Order> findByUserId(int userId) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT * FROM orders WHERE user_id=?";
+
+        try (Connection conn = ConnectionDB.getInstance();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Order o = new Order();
+                o.setId(rs.getInt("id"));
+                o.setUserId(rs.getInt("user_id"));
+                o.setTotalPrice(rs.getDouble("total_price"));
+                o.setStatus(rs.getString("status"));
+                list.add(o);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Lỗi hệ thống!");
+        }
+
+        return list;
     }
 }

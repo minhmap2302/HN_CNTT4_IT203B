@@ -1,12 +1,16 @@
 package ra.dao;
 
 import ra.entity.Product;
+
+import java.sql.Connection;
 import java.util.List;
 
 public interface ProductDAO {
     void save(Product p);
     List<Product> findAll();
     void delete(int id);
-    void update(Product p);
+    void update(Connection conn, Product p);
     List<Product> searchByName(String keyword);
+    void update(Product p);
+
 }

@@ -115,15 +115,17 @@ public class AdminMenu {
             return;
         }
 
+        System.out.println("--------------------------------------------------");
+        System.out.printf("%-5s %-15s %-10s %-10s %-5s\n", "ID", "Tên", "Hãng", "Giá", "SL");
+        System.out.println("--------------------------------------------------");
+
         for (Product p : list) {
-            System.out.println(
-                    p.getId() + " | " +
-                            p.getName() + " | " +
-                            p.getBrand() + " | " +
-                            p.getStorage() + " | " +
-                            p.getColor() + " | " +
-                            p.getPrice() + " | SL: " + p.getStock()
-            );
+            System.out.printf("%-5d %-15s %-10s %-10.0f %-5d\n",
+                    p.getId(),
+                    p.getName(),
+                    p.getBrand(),
+                    p.getPrice(),
+                    p.getStock());
         }
     }
 

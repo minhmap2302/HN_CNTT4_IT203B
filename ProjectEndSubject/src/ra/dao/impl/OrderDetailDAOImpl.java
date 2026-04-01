@@ -13,10 +13,8 @@ import java.util.List;
 public class OrderDetailDAOImpl implements OrderDetailDAO {
 
     @Override
-    public void save(OrderDetail od) {
+    public void save(Connection conn, OrderDetail od) {
         String sql = "INSERT INTO order_details(order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
-
-        Connection conn = ConnectionDB.getInstance();
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -29,7 +27,7 @@ public class OrderDetailDAOImpl implements OrderDetailDAO {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            System.out.println("Lỗi hệ thống!");
+            e.printStackTrace();
         }
     }
 

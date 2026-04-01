@@ -101,19 +101,29 @@ public class ProductDAOImpl implements ProductDAO {
         }
     }
 
+    public void update(Connection conn, Product p) {
+        String sql = "UPDATE products SET stock=? WHERE id=?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, p.getStock());
+            ps.setInt(2, p.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void update(Product p) {
         String sql = """
-            UPDATE products 
-            SET name=?, brand=?, storage=?, color=?, price=?, stock=?, description=?, category_id=? 
-            WHERE id=?
-        """;
+        UPDATE products 
+        SET name=?, brand=?, storage=?, color=?, price=?, stock=?, description=?, category_id=? 
+        WHERE id=?
+    """;
 
-        Connection conn = ConnectionDB.getInstance();
-        PreparedStatement ps = null;
-
-        try {
-            ps = conn.prepareStatement(sql);
+        try (Connection conn = ConnectionDB.getInstance();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, p.getName());
             ps.setString(2, p.getBrand());
@@ -126,14 +136,9 @@ public class ProductDAOImpl implements ProductDAO {
             ps.setInt(9, p.getId());
 
             ps.executeUpdate();
-            System.out.println("Cập nhật sản phẩm thành công!");
 
         } catch (Exception e) {
             System.out.println("Lỗi cập nhật!");
-        } finally {
-            try {
-                if (ps != null) ps.close();
-            } catch (Exception ignored) {}
         }
     }
 
