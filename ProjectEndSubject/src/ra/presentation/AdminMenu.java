@@ -18,7 +18,7 @@ public class AdminMenu {
 
     public void display() {
         while (true) {
-            System.out.println("===== ADMIN =====");
+            System.out.println("\n===== ADMIN =====");
             System.out.println("1. Thêm sản phẩm");
             System.out.println("2. Hiển thị sản phẩm");
             System.out.println("3. Xóa sản phẩm");
@@ -31,40 +31,28 @@ public class AdminMenu {
             System.out.println("10. Thoát");
             System.out.print("Chọn: ");
 
-            int choice = Integer.parseInt(sc.nextLine());
+            int choice;
+            try {
+                choice = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
+                System.out.println("⚠ Phải nhập số!");
+                continue;
+            }
 
             switch (choice) {
-                case 1:
-                    addProduct();
-                    break;
-                case 2:
-                    showProducts();
-                    break;
-                case 3:
-                    deleteProduct();
-                    break;
-                case 4:
-                    addCategory();
-                    break;
-                case 5:
-                    showCategory();
-                    break;
-                case 6:
-                    updateProduct();
-                    break;
-                case 7:
-                    searchProduct();
-                    break;
-                case 8:
-                    showOrders();
-                    break;
-                case 9:
-                    updateOrderStatus();
-                    break;
-                case 10:
+                case 1 -> addProduct();
+                case 2 -> showProducts();
+                case 3 -> deleteProduct();
+                case 4 -> addCategory();
+                case 5 -> showCategory();
+                case 6 -> updateProduct();
+                case 7 -> searchProduct();
+                case 8 -> showOrders();
+                case 9 -> updateOrderStatus();
+                case 10 -> {
                     return;
-                default:
-                    System.out.println("Sai lựa chọn!");
+                }
+                default -> System.out.println("Sai lựa chọn!");
             }
         }
     }
@@ -72,11 +60,10 @@ public class AdminMenu {
     // ================= PRODUCT =================
 
     private void addProduct() {
-
         List<Category> categories = categoryService.getAll();
 
         if (categories.isEmpty()) {
-            System.out.println("Chưa có danh mục! Hãy thêm category trước.");
+            System.out.println("⚠ Chưa có danh mục!");
             return;
         }
 
@@ -99,7 +86,7 @@ public class AdminMenu {
                     .anyMatch(c -> c.getId() == finalCateId);
 
             if (!exists) {
-                System.out.println("Category không tồn tại!");
+                System.out.println("❌ Category không tồn tại!");
             } else break;
         }
 
@@ -111,46 +98,69 @@ public class AdminMenu {
         List<Product> list = productService.getAll();
 
         if (list.isEmpty()) {
-            System.out.println("Không có sản phẩm!");
+            System.out.println("⚠ Không có sản phẩm!");
             return;
         }
 
-        System.out.println("--------------------------------------------------");
-        System.out.printf("%-5s %-15s %-10s %-10s %-5s\n", "ID", "Tên", "Hãng", "Giá", "SL");
-        System.out.println("--------------------------------------------------");
+        System.out.println("\n================ DANH SÁCH SẢN PHẨM ================\n");
+
+        System.out.printf("%-5s %-15s %-10s %-10s %-10s %-15s %-5s\n",
+                "ID", "Tên", "Hãng", "Dung lượng", "Màu", "Giá", "SL");
+
+        System.out.println("--------------------------------------------------------------------------");
 
         for (Product p : list) {
-            System.out.printf("%-5d %-15s %-10s %-10.0f %-5d\n",
+            System.out.printf("%-5d %-15s %-10s %-10s %-10s %-15s %-5d\n",
                     p.getId(),
                     p.getName(),
                     p.getBrand(),
-                    p.getPrice(),
-                    p.getStock());
+                    p.getStorage(),
+                    p.getColor(),
+                    String.format("%,.0f", p.getPrice()), // format tiền đúng
+                    p.getStock()
+            );
         }
+
+        System.out.println("\n====================================================\n");
     }
 
     private void deleteProduct() {
-        if (categoryService.getAll().isEmpty()) {
-            System.out.println("Không có sản phẩm để xóa!");
+        List<Product> list = productService.getAll();
+
+        if (list.isEmpty()) {
+            System.out.println("⚠ Không có sản phẩm!");
             return;
         }
+
         int id = Validator.inputInt("Nhập ID cần xóa: ");
+
+        boolean exists = list.stream().anyMatch(p -> p.getId() == id);
+
+        if (!exists) {
+            System.out.println("❌ ID không tồn tại!");
+            return;
+        }
+
         productService.delete(id);
     }
 
     private void updateProduct() {
-        if (categoryService.getAll().isEmpty()) {
-            System.out.println("Ko có sản phẩm!");
+        List<Product> products = productService.getAll();
+
+        if (products.isEmpty()) {
+            System.out.println("⚠ Không có sản phẩm!");
             return;
         }
+
         int id = Validator.inputInt("ID sản phẩm: ");
 
-        boolean exists = productService.getAll()
-                .stream()
-                .anyMatch(p -> p.getId() == id);
+        Product old = products.stream()
+                .filter(p -> p.getId() == id)
+                .findFirst()
+                .orElse(null);
 
-        if (!exists) {
-            System.out.println("Không tìm thấy sản phẩm!");
+        if (old == null) {
+            System.out.println("❌ Không tìm thấy sản phẩm!");
             return;
         }
 
@@ -162,30 +172,35 @@ public class AdminMenu {
         int stock = Validator.inputInt("Số lượng: ");
         String desc = Validator.inputRequired("Mô tả: ");
 
+        List<Category> categories = categoryService.getAll();
         showCategory();
 
-        int cateId = Validator.inputInt("Chọn category id: ");
+        int cateId;
+        while (true) {
+            cateId = Validator.inputInt("Chọn category id: ");
 
-        Product p = new Product();
-        p.setId(id);
-        p.setName(name);
-        p.setBrand(brand);
-        p.setStorage(storage);
-        p.setColor(color);
-        p.setPrice(price);
-        p.setStock(stock);
-        p.setDescription(desc);
-        p.setCategoryId(cateId);
+            int finalCateId = cateId;
+            boolean exists = categories.stream()
+                    .anyMatch(c -> c.getId() == finalCateId);
 
+            if (!exists) {
+                System.out.println("Category không tồn tại!");
+            } else break;
+        }
+
+        Product p = new Product(id, name, brand, storage, color, price, stock, desc, cateId);
         productService.update(p);
     }
 
     private void searchProduct() {
-        if (categoryService.getAll().isEmpty()) {
-            System.out.println("Khong co san pham");
-        }
-        String keyword = Validator.inputRequired("Nhập tên cần tìm: ");
+        List<Product> all = productService.getAll();
 
+        if (all.isEmpty()) {
+            System.out.println("⚠ Không có sản phẩm!");
+            return;
+        }
+
+        String keyword = Validator.inputRequired("Nhập tên cần tìm: ");
         List<Product> list = productService.search(keyword);
 
         if (list.isEmpty()) {
@@ -193,16 +208,14 @@ public class AdminMenu {
             return;
         }
 
-        for (Product p : list) {
-            System.out.println(
-                    p.getId() + " | " +
-                            p.getName() + " | " +
-                            p.getBrand() + " | " +
-                            p.getStorage() + " | " +
-                            p.getColor() + " | " +
-                            p.getPrice() + " | SL: " + p.getStock()
-            );
-        }
+        list.forEach(p -> System.out.println(
+                p.getId() + " | " +
+                        p.getName() + " | " +
+                        p.getBrand() + " | " +
+                        p.getStorage() + " | " +
+                        p.getColor() + " | " +
+                        String.format("%,.0f", p.getPrice()) + " | SL: " + p.getStock()
+        ));
     }
 
     // ================= CATEGORY =================
@@ -213,16 +226,31 @@ public class AdminMenu {
     }
 
     private void showCategory() {
-        List<Category> list = categoryService.getAll();
+        List<Category> categories = categoryService.getAll();
+        List<Product> products = productService.getAll();
 
-        if (list.isEmpty()) {
-            System.out.println("Chưa có danh mục!");
+        if (categories.isEmpty()) {
+            System.out.println("\n⚠ Chưa có danh mục!\n");
             return;
         }
 
-        for (Category c : list) {
-            System.out.println(c.getId() + " - " + c.getName());
+        System.out.println("\n=========== DANH MỤC ===========");
+        System.out.printf("%-5s | %-20s | %-10s\n", "ID", "Tên", "Số SP");
+        System.out.println("------------------------------------------------");
+
+        for (Category c : categories) {
+
+            long count = products.stream()
+                    .filter(p -> p.getCategoryId() == c.getId())
+                    .count();
+
+            System.out.printf("%-5d | %-20s | %-10d\n",
+                    c.getId(),
+                    c.getName(),
+                    count);
         }
+
+        System.out.println("================================================\n");
     }
 
     // ================= ORDER =================
@@ -230,33 +258,53 @@ public class AdminMenu {
     private void showOrders() {
         List<Order> orders = orderService.getAll();
 
-        if (orders.isEmpty()) {
-            System.out.println("Chưa có đơn hàng!");
+        if (orders == null || orders.isEmpty()) {
+            System.out.println("\n⚠ Không có đơn hàng!\n");
             return;
         }
 
+        List<Product> products = productService.getAll();
+
+        System.out.println("\n================== DANH SÁCH ĐƠN HÀNG ==================\n");
+
         for (Order o : orders) {
-            System.out.println("=================================");
-            System.out.println("Đơn " + o.getId() +
-                    " | User: " + o.getUserId() +
-                    " | Total: " + o.getTotalPrice() +
-                    " | Status: " + o.getStatus());
+            System.out.println("=======================================================");
+            System.out.println("Đơn hàng ID: " + o.getId());
+            System.out.println("User ID   : " + o.getUserId());
+            System.out.println("Tổng tiền : " + String.format("%,.0f", o.getTotalPrice()) + " VND");
+            System.out.println("Trạng thái: " + o.getStatus());
+
+            System.out.println("\n------------------ CHI TIẾT SẢN PHẨM ------------------");
+            System.out.printf("%-5s %-20s %-10s %-10s %-10s\n",
+                    "ID", "Tên", "SL", "Giá", "Thành tiền");
+            System.out.println("-------------------------------------------------------");
 
             List<OrderDetail> details = orderDetailService.findByOrderId(o.getId());
 
+            double totalCheck = 0;
+
             for (OrderDetail d : details) {
-                Product p = productService.getAll()
-                        .stream()
+                Product p = products.stream()
                         .filter(pr -> pr.getId() == d.getProductId())
                         .findFirst()
                         .orElse(null);
 
                 if (p != null) {
-                    System.out.println("   - " + p.getName() +
-                            " | SL: " + d.getQuantity() +
-                            " | Giá: " + d.getPrice());
+                    double sub = d.getQuantity() * d.getPrice();
+                    totalCheck += sub;
+
+                    System.out.printf("%-5d %-20s %-10d %-10s %-10s\n",
+                            p.getId(),
+                            p.getName(),
+                            d.getQuantity(),
+                            String.format("%,.0f", d.getPrice()),
+                            String.format("%,.0f", sub));
                 }
             }
+
+            System.out.println("-------------------------------------------------------");
+            System.out.println("✔ Tổng kiểm tra: " + String.format("%,.0f", totalCheck) + " VND");
+            System.out.println("=======================================================\n");
         }
     }
 

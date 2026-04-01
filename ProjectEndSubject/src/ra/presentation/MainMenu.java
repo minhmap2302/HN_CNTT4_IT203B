@@ -8,16 +8,18 @@ import ra.util.Validator;
 import java.util.Scanner;
 
 public class MainMenu {
+
     private final UserService userService = new UserServiceImpl();
     private final Scanner scanner = new Scanner(System.in);
 
     public void display() {
         while (true) {
-            System.out.println("===== PHONE STORE =====");
-            System.out.println("1. Register");
-            System.out.println("2. Login");
-            System.out.println("0. Exit");
-
+            System.out.println("\n==================================");
+            System.out.println("        📱 PHONE STORE");
+            System.out.println("==================================");
+            System.out.println("1. Đăng ký");
+            System.out.println("2. Đăng nhập");
+            System.out.println("0. Thoát");
             System.out.print("Chọn: ");
 
             int choice;
@@ -36,15 +38,19 @@ public class MainMenu {
                     login();
                     break;
                 case 0:
-                    System.out.println("Thoát chương trình!");
+                    System.out.println("👋 Thoát chương trình!");
                     System.exit(0);
+                    break;
                 default:
-                    System.out.println("Sai lựa chọn!");
+                    System.out.println("❌ Sai lựa chọn!");
             }
         }
     }
 
+    // ================= REGISTER =================
     private void register() {
+        System.out.println("\n========== ĐĂNG KÝ ==========");
+
         String name = Validator.inputRequired("Tên: ");
         String email = Validator.inputEmail("Email: ");
         String phone = Validator.inputPhone("SĐT: ");
@@ -52,31 +58,38 @@ public class MainMenu {
         String password = Validator.inputRequired("Mật khẩu: ");
 
         User user = new User(name, email, phone, address, password, "CUSTOMER");
+
         userService.register(user);
+
+        System.out.println("✅ Đăng ký thành công!");
     }
 
+    // ================= LOGIN =================
     private void login() {
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
+        System.out.println("\n========== ĐĂNG NHẬP ==========");
 
-        System.out.print("Mật khẩu: ");
-        String password = scanner.nextLine();
+        // ❗ Login không nên validate email quá gắt
+        String email = Validator.inputRequired("Email: ");
+        String password = Validator.inputRequired("Mật khẩu: ");
 
         User user = userService.login(email, password);
 
-        if (user != null) {
-            System.out.println("Xin chào: " + user.getName());
+        if (user == null) {
+            System.out.println("❌ Sai tài khoản hoặc mật khẩu!");
+            return;
+        }
 
-            if ("ADMIN".equals(user.getRole())) {
-                System.out.println("Đăng nhập ADMIN");
-                new AdminMenu().display();
-            } else {
-                System.out.println("Đăng nhập CUSTOMER");
-                new CustomerMenu((Integer) user.getId()).display();
-            }
+        System.out.println("\n==================================");
+        System.out.println("👋 Xin chào: " + user.getName());
+        System.out.println("==================================");
 
+        // ================= ROLE =================
+        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+            System.out.println("👉 Đăng nhập ADMIN");
+            new AdminMenu().display();
         } else {
-            System.out.println("Sai tài khoản hoặc mật khẩu!");
+            System.out.println("👉 Đăng nhập CUSTOMER");
+            new CustomerMenu(user.getId()).display();
         }
     }
 }

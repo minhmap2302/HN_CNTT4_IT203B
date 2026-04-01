@@ -25,6 +25,9 @@ public class Product {
         this.categoryId = categoryId;
     }
 
+    public Product(int id, String name, String brand, String storage, String color, double price, int stock, String desc, int cateId) {
+    }
+
     public int getId() {
         return id;
     }

@@ -5,6 +5,7 @@ import ra.service.OrderService;
 import ra.service.ProductService;
 import ra.service.impl.OrderServiceImpl;
 import ra.service.impl.ProductServiceImpl;
+import ra.util.Validator;
 
 import java.util.List;
 import java.util.Scanner;
@@ -52,20 +53,41 @@ public class CustomerMenu {
     }
 
     private void showProducts() {
-        productService.getAll().stream()
+        List<Product> list = productService.getAll()
+                .stream()
                 .filter(p -> p.getStock() > 0)
-                .forEach(p -> System.out.println(
-                        p.getId() + " | " +
-                                p.getName() + " | " +
-                                p.getPrice() + " | SL: " + p.getStock()));
+                .toList();
+
+        if (list.isEmpty()) {
+            System.out.println("\n⚠ Không có sản phẩm!\n");
+            return;
+        }
+
+        System.out.println("\n================ DANH SÁCH SẢN PHẨM ================\n");
+
+        System.out.printf("%-5s %-20s %-10s %-10s %-10s %-10s %-5s\n",
+                "ID", "Tên", "Hãng", "Dung lượng", "Màu", "Giá", "SL");
+
+        System.out.println("--------------------------------------------------------------------------");
+
+        for (Product p : list) {
+            System.out.printf("%-5d %-20s %-10s %-10s %-10s %-10s %-5d\n",
+                    p.getId(),
+                    p.getName(),
+                    p.getBrand(),
+                    p.getStorage(),
+                    p.getColor(),
+                    String.format("%,.0f", p.getPrice()),
+                    p.getStock()
+            );
+        }
+
+        System.out.println();
     }
 
     private void order() {
-        System.out.print("Nhập ID sản phẩm: ");
-        int productId = Integer.parseInt(sc.nextLine());
-
-        System.out.print("Nhập số lượng: ");
-        int quantity = Integer.parseInt(sc.nextLine());
+        int productId = Validator.inputInt("Nhập ID sản phẩm: ");
+        int quantity = Validator.inputInt("Nhập số lượng: ");
 
         orderService.createOrder(userId, productId, quantity);
     }

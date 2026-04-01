@@ -28,7 +28,6 @@ public class UserDAOImpl implements UserDAO {
             ps.setString(6, user.getRole());
 
             ps.executeUpdate();
-            System.out.println("Đăng ký thành công!");
 
         } catch (Exception e) {
             System.out.println("Lỗi hệ thống!");
@@ -46,25 +45,21 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                String dbPassword = rs.getString("password");
+                User user = new User();
 
-                BCrypt.Result result = BCrypt.verifyer()
-                        .verify(password.toCharArray(), dbPassword);
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setEmail(rs.getString("email"));
+                user.setPhone(rs.getString("phone"));
+                user.setAddress(rs.getString("address"));
+                user.setPassword(rs.getString("password")); // ⭐ QUAN TRỌNG
+                user.setRole(rs.getString("role"));
 
-                if (result.verified) {
-
-                    User user = new User();
-                    user.setId(rs.getInt("id"));
-                    user.setName(rs.getString("name"));
-                    user.setEmail(rs.getString("email"));
-                    user.setRole(rs.getString("role"));
-
-                    return user;
-                }
+                return user;
             }
 
         } catch (Exception e) {
-            System.out.println("Lỗi hệ thống!");
+            e.printStackTrace();
         }
         return null;
     }
