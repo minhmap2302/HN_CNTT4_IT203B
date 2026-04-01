@@ -45,27 +45,36 @@ public class ProductDAOImpl implements ProductDAO {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products";
 
-        try (Connection conn = ConnectionDB.getInstance();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        Connection conn = ConnectionDB.getInstance();
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = conn.createStatement();
+            rs = st.executeQuery(sql);
 
             while (rs.next()) {
                 Product p = new Product();
                 p.setId(rs.getInt("id"));
                 p.setName(rs.getString("name"));
                 p.setBrand(rs.getString("brand"));
-                p.setStorage(rs.getString("storage"));   // thêm
-                p.setColor(rs.getString("color"));       // thêm
+                p.setStorage(rs.getString("storage"));
+                p.setColor(rs.getString("color"));
                 p.setPrice(rs.getDouble("price"));
                 p.setStock(rs.getInt("stock"));
-                p.setDescription(rs.getString("description")); // thêm
-                p.setCategoryId(rs.getInt("category_id"));     // thêm
+                p.setDescription(rs.getString("description"));
+                p.setCategoryId(rs.getInt("category_id"));
 
                 list.add(p);
             }
 
         } catch (Exception e) {
             System.out.println("Lỗi lấy sản phẩm!");
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (Exception ignored) {}
         }
 
         return list;
@@ -114,8 +123,11 @@ public class ProductDAOImpl implements ProductDAO {
         WHERE id=?
     """;
 
-        try (Connection conn = ConnectionDB.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = ConnectionDB.getInstance();
+        PreparedStatement ps = null;
+
+        try {
+            ps = conn.prepareStatement(sql);
 
             ps.setString(1, p.getName());
             ps.setString(2, p.getBrand());
@@ -131,6 +143,10 @@ public class ProductDAOImpl implements ProductDAO {
 
         } catch (Exception e) {
             System.out.println("Lỗi cập nhật!");
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (Exception ignored) {}
         }
     }
 

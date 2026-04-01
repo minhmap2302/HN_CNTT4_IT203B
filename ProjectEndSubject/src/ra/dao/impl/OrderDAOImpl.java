@@ -97,8 +97,9 @@ public class OrderDAOImpl implements OrderDAO {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM orders WHERE user_id=?";
 
-        try (Connection conn = ConnectionDB.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = ConnectionDB.getInstance();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();

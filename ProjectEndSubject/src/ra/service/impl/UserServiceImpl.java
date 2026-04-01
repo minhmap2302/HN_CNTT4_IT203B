@@ -56,21 +56,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(String email, String password) {
+        User user = userDAO.findByEmail(email);
 
-        List<User> list = userDAO.findAll();
+        if (user == null) return null;
 
-        for (User u : list) {
-            if (u.getEmail() != null && u.getEmail().equalsIgnoreCase(email)) {
-
-                // ===== VERIFY BCRYPT =====
-                if (BCryptUtil.verify(password, u.getPassword())) {
-                    return u;
-                } else {
-                    return null;
-                }
-            }
+        if (user.getPassword() == null) {
+            System.out.println("User lỗi password null!");
+            return null;
         }
 
-        return null;
+        boolean check = BCryptUtil.verify(password, user.getPassword());
+
+        return check ? user : null;
     }
 }

@@ -38,11 +38,11 @@ public class MainMenu {
                     login();
                     break;
                 case 0:
-                    System.out.println("👋 Thoát chương trình!");
+                    System.out.println("Thoát chương trình!");
                     System.exit(0);
                     break;
                 default:
-                    System.out.println("❌ Sai lựa chọn!");
+                    System.out.println("Sai lựa chọn!");
             }
         }
     }
@@ -75,20 +75,20 @@ public class MainMenu {
         User user = userService.login(email, password);
 
         if (user == null) {
-            System.out.println("❌ Sai tài khoản hoặc mật khẩu!");
+            System.out.println("Sai tài khoản hoặc mật khẩu!");
             return;
         }
 
         System.out.println("\n==================================");
-        System.out.println("👋 Xin chào: " + user.getName());
+        System.out.println("Xin chào: " + user.getName());
         System.out.println("==================================");
 
         // ================= ROLE =================
         if ("ADMIN".equalsIgnoreCase(user.getRole())) {
-            System.out.println("👉 Đăng nhập ADMIN");
+            System.out.println("Đăng nhập ADMIN");
             new AdminMenu().display();
         } else {
-            System.out.println("👉 Đăng nhập CUSTOMER");
+            System.out.println("Đăng nhập CUSTOMER");
             new CustomerMenu(user.getId()).display();
         }
     }
